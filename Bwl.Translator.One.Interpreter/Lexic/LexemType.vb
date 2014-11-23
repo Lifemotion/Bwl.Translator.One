@@ -17,4 +17,5 @@ Public Enum LexType
     lexWhile
     lexThen
     lexEndLine 'конец строки
+    lexMathOperation
 End Enum

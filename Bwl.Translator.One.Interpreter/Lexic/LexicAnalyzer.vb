@@ -1,11 +1,12 @@
 ﻿Public Class LexicAnalyzer
     'состояние КА ЛА
     Private Enum State
-        lsStart
-        lsV
-        lsN
-        lsS
-        lsK
+        Start
+        Verb
+        Number
+        Str
+        Comment
+        MathSymbol
     End Enum
 
     'лексический анализ
@@ -13,7 +14,7 @@
 
         Dim _lex As New List(Of Lexem)()
         'реализуем конечный автомат для разбиения на лексемы
-        Dim state As State = State.lsStart
+        Dim state As State = State.Start
         'перебираем символы
         Dim pos As Integer = 0
         Dim tmp As String = ""
@@ -30,13 +31,13 @@
             Dim chr As Char = lineC(pos)
             'перебор таблицы состояний и символов
             Select Case state
-                Case State.lsStart
+                Case State.Start
                     Select Case chr
                         Case " "c, ","c, ControlChars.Tab
                             accepted = True
                         Case "-"c
                             tmp &= chr
-                            state = state.lsN
+                            state = state.Number
                             accepted = True
                         Case "("c
                             tmp = ""
@@ -45,6 +46,35 @@
                             lex.Name = ""
                             _lex.Add(lex)
                             accepted = True
+                        Case "+"c
+                            tmp = ""
+                            Dim lex As New Lexem()
+                            lex.Type = LexType.lexMathOperation
+                            lex.Name = "+"
+                            _lex.Add(lex)
+                            accepted = True
+                        Case "-"c
+                            tmp = ""
+                            Dim lex As New Lexem()
+                            lex.Type = LexType.lexMathOperation
+                            lex.Name = "-"
+                            _lex.Add(lex)
+                            accepted = True
+                        Case "*"c
+                            tmp = ""
+                            Dim lex As New Lexem()
+                            lex.Type = LexType.lexMathOperation
+                            lex.Name = "*"
+                            _lex.Add(lex)
+                            accepted = True
+                        Case "/"c
+                            tmp = ""
+                            Dim lex As New Lexem()
+                            lex.Type = LexType.lexMathOperation
+                            lex.Name = "/"
+                            _lex.Add(lex)
+                            accepted = True
+
                         Case ")"c
                             tmp = ""
                             Dim lex As New Lexem()
@@ -61,26 +91,26 @@
                             accepted = True
                         Case """"c
                             tmp = ""
-                            state = state.lsS
+                            state = state.Str
                             accepted = True
                         Case "'"c
-                            state = state.lsK
+                            state = state.Comment
                             accepted = True
                     End Select
 
                     If IsAbc(chr) Then
                         tmp &= chr
-                        state = State.lsV
+                        state = State.Verb
                         accepted = True
                     End If
 
                     If IsDigit(chr) Then
                         tmp &= chr
-                        state = State.lsN
+                        state = State.Number
                         accepted = True
                     End If
 
-                Case State.lsV
+                Case State.Verb
                     If IsAbc(chr) Then
                         tmp &= chr
                         accepted = True
@@ -95,7 +125,7 @@
                         lex.Name = tmp
                         tmp = ""
                         _lex.Add(lex)
-                        state = State.lsStart
+                        state = State.Start
                         pos -= 1
                         accepted = True
                     End If
@@ -103,10 +133,10 @@
                         pos += 1
                     End If
                     If chr = "'" Then
-                        state = State.lsK
+                        state = State.Comment
                         accepted = True
                     End If
-                Case State.lsN
+                Case State.Number
                     If IsDigit(chr) Then
                         tmp &= chr
                         accepted = True
@@ -117,7 +147,7 @@
                         lex.Name = tmp
                         tmp = ""
                         _lex.Add(lex)
-                        state = State.lsStart
+                        state = State.Start
                         pos -= 1
                         accepted = True
                     End If
@@ -125,17 +155,17 @@
                         pos += 1
                     End If
                     If chr = "'" Then
-                        state = State.lsK
+                        state = State.Comment
                         accepted = True
                     End If
-                Case State.lsS
+                Case State.Str
                     If chr = """" Then
                         Dim lex As New Lexem()
                         lex.Type = LexType.lexS
                         lex.Name = tmp
                         tmp = ""
                         _lex.Add(lex)
-                        state = State.lsStart
+                        state = State.Start
                         accepted = True
                         chr = lineC(pos + 1)
                         If chr = "," Then
@@ -145,7 +175,7 @@
                         tmp &= chr
                         accepted = True
                     End If
-                Case State.lsK
+                Case State.Comment
                     accepted = True
             End Select
             If Not accepted Then
@@ -154,7 +184,7 @@
                 exc.Line = line
                 exc.ColumnNumber = pos + 1
                 exc.Text = "Недопустимый символ."
-                Throw New Exception
+                Throw exc
             End If
             pos += 1
         Loop
@@ -203,7 +233,7 @@
     'входит ли символ в множество c символов языка
     Private Shared Function IsAbc(ByVal t As Char) As Boolean
         Select Case t
-            Case "a"c To "z"c, "A"c To "Z"c, "_"c
+            Case "a"c To "z"c, "A"c To "Z"c, "_"c, "."c
                 Return True
             Case Else
                 Return False
@@ -223,10 +253,12 @@
     ' является ли символ разделителем
     Private Shared Function IsDelimiter(ByVal t As Char) As Boolean
         Select Case t
-            Case " "c, ","c, ")"c, "("c, "="c, "'"c
+            Case " "c, ","c, ")"c, "("c, "="c, "'"c, "+"c, "-"c, "*"c, "/"c, "\"c
                 Return True
             Case Else
                 Return False
         End Select
     End Function
+
+
 End Class

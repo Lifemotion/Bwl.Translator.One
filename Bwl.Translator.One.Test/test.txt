@@ -1,3 +1,4 @@
+WriteLine(1)
 WriteLine("Test program")
 Dim A, B As Integer
 A = -2

@@ -113,9 +113,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\bwl.Translator.One\Bwl.Translator.One.vbproj">
+    <ProjectReference Include="..\bwl.Translator.One\Bwl.Translator.One.Common.vbproj">
       <Project>{91703754-EE42-4FBC-BE84-8E45B67A7D32}</Project>
-      <Name>Bwl.Translator.One</Name>
+      <Name>Bwl.Translator.One.Common</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />

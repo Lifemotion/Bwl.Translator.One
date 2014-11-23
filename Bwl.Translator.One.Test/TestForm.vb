@@ -36,6 +36,7 @@ Public Class TestForm
 
     Private Sub ExternalCall(ByRef found As Boolean, funcName As String, instruction As Instruction, out As StringBuilder)
         If funcName.ToLower = "msgbox" Then MsgBox(instruction.Args(2).Value)
+        instruction.Args(1).Value = "3"
         found = True
     End Sub
 
